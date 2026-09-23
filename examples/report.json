@@ -1,0 +1,97 @@
+{
+  "description": "Synthetic data proof of concept; no patient data, real-world validation or clinical utility claim",
+  "settings": {
+    "n": 240,
+    "data_seed": 2026,
+    "search_seed": 7,
+    "k": 5,
+    "l": 2,
+    "max_suppression": 0.3,
+    "population": 12,
+    "generations": 12
+  },
+  "objectives": [
+    "hierarchy-depth generalization cost (lower is better)",
+    "whole-row suppression rate (lower is better)"
+  ],
+  "baseline_all_generalized": {
+    "genes": [
+      3,
+      3,
+      1
+    ],
+    "generalization_cost": 1.0,
+    "suppression_rate": 0.0,
+    "retained": 240,
+    "groups": 1,
+    "constraint_violation": 0.0
+  },
+  "selected": {
+    "genes": [
+      1,
+      2,
+      0
+    ],
+    "generalization_cost": 0.3333333333333333,
+    "suppression_rate": 0.19166666666666668,
+    "retained": 194,
+    "groups": 28,
+    "constraint_violation": 0.0
+  },
+  "ga_pareto": [
+    {
+      "genes": [
+        3,
+        1,
+        0
+      ],
+      "generalization_cost": 0.4444444444444444,
+      "suppression_rate": 0.0,
+      "retained": 240,
+      "groups": 12,
+      "constraint_violation": 0.0
+    },
+    {
+      "genes": [
+        1,
+        2,
+        0
+      ],
+      "generalization_cost": 0.3333333333333333,
+      "suppression_rate": 0.19166666666666668,
+      "retained": 194,
+      "groups": 28,
+      "constraint_violation": 0.0
+    }
+  ],
+  "ga_policies_evaluated": 29,
+  "possible_policies": 32,
+  "exhaustive_reference_pareto": [
+    {
+      "genes": [
+        3,
+        1,
+        0
+      ],
+      "generalization_cost": 0.4444444444444444,
+      "suppression_rate": 0.0,
+      "retained": 240,
+      "groups": 12,
+      "constraint_violation": 0.0
+    },
+    {
+      "genes": [
+        1,
+        2,
+        0
+      ],
+      "generalization_cost": 0.3333333333333333,
+      "suppression_rate": 0.19166666666666668,
+      "retained": 194,
+      "groups": 28,
+      "constraint_violation": 0.0
+    }
+  ],
+  "ga_found_exact_front": true,
+  "released_invariant_verified": true
+}
