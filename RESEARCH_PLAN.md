@@ -1,22 +1,31 @@
-# Research notes
+# Research Plan and Progress
 
-The code in this repository is a small experiment using artificial records. This document records questions to investigate if the work continues; it does not report completed studies.
+My research plan is to continue researching the use of multi-objective genetic algorithms for healthcare data anonymization, with the goal of protecting sensitive patient information while preserving sufficient data utility for healthcare research and analysis.
 
-## Main question
+## Current Progress
 
-Can a genetic algorithm find generalization and suppression policies that meet defined privacy constraints without losing information needed for a particular health analysis?
+As an initial step toward this research, I have conducted an experimental study employing a genetic algorithm on synthetic healthcare-style records. This study evaluates anonymization policies based on different levels of generalization and suppression while applying privacy constraints including k-anonymity and l-diversity.
 
-## Starting point
+Initially, the search space was purposefully kept smaller (limited to 32 possible policies) so that the genetic algorithm could be compared against exhaustive search easily, and to establish the comparative reference for later iterations. The source code, experimental scripts, and results have also been made publicly available through GitHub to allow the work to be reproduced and further developed.
 
-The current experiment has 32 global policies and two costs: generalization depth and row suppression. It checks group size and the number of distinct diagnosis values in each retained group. It can compare a GA run against all 32 policies, but it cannot measure whether a medical analysis remains accurate. The generated fields and diagnoses are independent by construction.
+## Planned Research
 
-## Questions for future experiments
+### Expand the anonymization search space.
 
-1. Add more quasi-identifiers and defensible generalization hierarchies. Compare the GA with random search and other baselines as the number of policies grows. Use exhaustive search only while it remains practical.
-2. Pick an analysis before transforming the data. Compare its results before and after anonymization, including differences across relevant subgroups. Any real data would require appropriate access and disclosure review first.
-3. Evaluate linkage and attribute-disclosure risks. Explore t-closeness and, for suitable aggregate releases, differential privacy with proper privacy accounting. These would be separate implementations and evaluations.
-4. Repeat experiments with multiple seeds. Publish the configurations, run times, objective values, and uncertainty instead of reporting one favorable run.
+The current study uses a 32-policy space for verifiability as initial baseline. I plan to scale this to larger search space with additional quasi-identifiers, and deeper generalization depth for each identifier. This will yield search spaces with thousands of candidate policies and would serve as meaningful test of whether genetic search can identify strong anonymization policies ( within suppression and utility constraints ) while evaluating only a fraction of the available search space. This will also let us quantify the computational advantage of the GA-based method over traditional searches on realistic healthcare data.
 
-## What to report
+### Extend the privacy requirements.
 
-For each run, record both costs, the number of retained records, the group checks on output rows, the number of policies evaluated, and agreement with an exact reference when available. Results on generated data would show only how the algorithm behaves on that generated data.
+The current implementation uses k-anonymity and distinct l-diversity. Future work will investigate stronger privacy requirements, including differential privacy and t-closeness to further safeguard against re-identification threats. Re-identification risk becomes a more serious challenge as the search space grows, and these stronger constraints will create optimization problems that better reflect real-world healthcare records.
+
+### Evaluate larger-scale and appropriately governed healthcare data.
+
+After validating the approach on more realistic synthetic datasets, I intend to apply the GA-based search to real-world federated healthcare data networks such as PCORnet, the FDA Sentinel Initiative, and the NIH All of Us Research Program. These are active U.S. research networks involving millions of patient records contributed by Americans, and privacy-preserving analytics is a recognized ongoing challenge in each of them.
+
+## Publishing Online framework
+
+Current work toward this research is hosted publicly under the MIT license at [https://github.com/UsamaMehboob/healthcare-privacy-ga](https://github.com/UsamaMehboob/healthcare-privacy-ga). As the framework matures through the phases above, I intend to package it as a one-stop toolkit with plug-and-play features that researchers using healthcare data networks like PCORnet, FDA Sentinel can deploy directly. My professional DevOps background in building data automation pipelines will help make this genuinely deployable in the systems that host research data.
+
+## Summary
+
+My research plan builds on the genetic algorithm foundation described in my [prior publication](https://dl.acm.org/doi/10.1007/s00500-016-2070-9) and on my recent manuscript documenting an experimental study using a multi-objective genetic algorithm for anonymization on synthetic tabular health data ([https://www.preprints.org/manuscript/202609.2305](https://www.preprints.org/manuscript/202609.2305) ). The source code and this manuscript are both publicly available to serve as a documented evidence of active research.
