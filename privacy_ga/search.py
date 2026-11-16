@@ -1,3 +1,6 @@
+
+    
+  
 """Search over generalization policies."""
 
 from __future__ import annotations
@@ -84,144 +87,14 @@ def crowding(layer: list[Evaluation]) -> dict[Chromosome, float]:
     return distances
 
 
+def _front_sort_key(item: Evaluation) -> tuple[float, float, Chromosome]:
+    return item.suppression_rate, item.generalization_cost, item.genes
+
+
 def search(
     rows: list[Record],
     k: int = 5,
     l: int = 2,
     max_suppression: float = 0.30,
     population_size: int = 12,
-    generations: int = 12,
-    seed: int = 7,
-) -> tuple[list[Evaluation], int]:
-    """Return the policies found on the Pareto front and the evaluation count."""
-    possible = 1
-    for maximum in MAX_LEVELS:
-        possible *= maximum + 1
 
-    if not 4 <= population_size < possible or generations < 1:
-        raise ValueError(
-            f"require 4 <= population_size < {possible} and generations >= 1"
-        )
-
-    rng = Random(seed)
-    cache: dict[Chromosome, Evaluation] = {}
-
-    def score(genes: Chromosome) -> Evaluation:
-        if genes not in cache:
-            cache[genes] = evaluate(rows, genes, k, l, max_suppression)
-        return cache[genes]
-
-    def sample() -> Chromosome:
-        return (
-            rng.randint(0, MAX_LEVELS[0]),
-            rng.randint(0, MAX_LEVELS[1]),
-            rng.randint(0, MAX_LEVELS[2]),
-        )
-
-    # Start with the two extremes so both are evaluated in every run.
-    initial = {
-        (3, 3, 1): score((3, 3, 1)),
-        (0, 0, 0): score((0, 0, 0)),
-    }
-    while len(initial) < population_size:
-        candidate = score(sample())
-        initial[candidate.genes] = candidate
-
-    population = list(initial.values())
-
-    for _ in range(generations):
-        layers = fronts(population)
-        ranks = {
-            item.genes: rank
-            for rank, layer in enumerate(layers)
-            for item in layer
-        }
-        distances = {
-            genes: distance
-            for layer in layers
-            for genes, distance in crowding(layer).items()
-        }
-
-        def tournament() -> Evaluation:
-            a, b = rng.sample(population, 2)
-            return min(
-                (a, b),
-                key=lambda item: (
-                    ranks[item.genes],
-                    -distances[item.genes],
-                    item.genes,
-                ),
-            )
-
-        offspring = []
-        for _ in range(population_size):
-            a, b = tournament(), tournament()
-            child = [rng.choice((x, y)) for x, y in zip(a.genes, b.genes)]
-
-            for i, maximum in enumerate(MAX_LEVELS):
-                if rng.random() < 0.25:
-                    child[i] = rng.randint(0, maximum)
-
-            offspring.append(score((child[0], child[1], child[2])))
-
-        # Keep one copy of each policy before selecting the next population.
-        combined = {item.genes: item for item in population + offspring}
-        population = []
-
-        for layer in fronts(list(combined.values())):
-            remaining = population_size - len(population)
-            if len(layer) <= remaining:
-                population.extend(layer)
-                continue
-
-            distance = crowding(layer)
-            population.extend(
-                sorted(
-                    layer,
-                    key=lambda item: (-distance[item.genes], item.genes),
-                )[:remaining]
-            )
-            break
-
-    # This is the front among evaluated policies; exhaustive_search is the
-    # reference when we need to check it against the full search space.
-    feasible = [item for item in cache.values() if item.feasible]
-    if not feasible:
-        return [], len(cache)
-
-    pareto = fronts(feasible)[0]
-    return sorted(
-        set(pareto),
-        key=lambda item: (
-            item.suppression_rate,
-            item.generalization_cost,
-            item.genes,
-        ),
-    ), len(cache)
-
-
-def exhaustive_search(
-    rows: list[Record],
-    k: int = 5,
-    l: int = 2,
-    max_suppression: float = 0.30,
-) -> list[Evaluation]:
-    """Evaluate every policy in the current search space."""
-    all_scores = [
-        evaluate(rows, genes, k, l, max_suppression)
-        for genes in product(
-            *(range(maximum + 1) for maximum in MAX_LEVELS)
-        )
-    ]
-    feasible = [item for item in all_scores if item.feasible]
-    if not feasible:
-        return []
-
-    return sorted(
-        fronts(feasible)[0],
-        key=lambda item: (
-            item.suppression_rate,
-            item.generalization_cost,
-            item.genes,
-        ),
-    )
